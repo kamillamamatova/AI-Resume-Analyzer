@@ -3,11 +3,9 @@ import streamlit as st
 # Imports the function that extracts text from PDFs
 from extractor import extract_text_from_pdf
 # Imports the function that analyzes resumes using OpenAI
-from analyzer import get_resume_feedback
+from analyzer import get_resume_feedback, get_resume_score
 # Imports base64 so I can create downloadable files later
 import base64
-# Imports AI response
-import openai
 # Imports environment variables
 import os
 # Imports .env file variales
@@ -23,13 +21,12 @@ from email.mime.multipart import MIMEMultipart
 
 # Load the environment variables
 load_dotenv()
-openaikey = os.getenv("OPENAI_API_KEY")
 
 # Sets the title and layout
 st.set_page_config(page_title = "AI Resume Analyzer", layout = "centered")
 
 # Theme toggle
-theme = st.sidebar.radio("Choose Theme", ["Light", "Dark"])
+theme = st.sidebar.radio("Choose Theme", ["Dark", "Light"])
 
 # Conditional styling based on user's choice using embedded CSS
 if theme == "Dark":
@@ -111,46 +108,15 @@ if uploaded_file:
     with st.spinner("Analyzing your resume..."):
         # Calls the function to analyze the resume and get feedback
         feedback = get_resume_feedback(resume_text)
-
-        # Ask OpenAI to rate the resume
-        score_prompt = f"""
-        You are a resume expert. Given the following resume:
-
-        """
-        {resume_text}
-        """
-        
-        Please give detailed ratings from 0 to 100 for:
-        - Formatting
-        - Clarity
-        - Relevance to Industry
-        - Technical Skills
-        - Overall quality
-
-        Return a JSON object like this:
-        {{"formatting": 88, "clarity": 92, "relevance": 85, "technical_skills": 90, "overall": 87}}
-        """
-        score_response = openai.ChatCompletion.create(
-            model = "gpt-3.5-turbo",
-            messages = [{"role": "user", "content": score_prompt}],
-            temperature = 0.3,
-            max_tokens = 150
-        )
-        # Extract the score from the AI response
-        try:
-            import json
-            scores = json.loads(score_response.choices[0].message.content.strip())
-        # If fails, fallback
-        except:
-            scores = {"formatting": 70, "clarity": 70, "relevance": 70, "technical": 70, "overall": 70}
+        scores = get_resume_score(resume_text)
 
     # Displays feedback and scores
     st.subheader("AI Feedback")
     st.write(feedback)
 
     st.subheader("Resume Score Breakdown")
-    for category in ("formatting", "clarity", "relevance", "technical"):
-        st.write(f"{category.capitalize()}: **{scores[category]}/100**")
+    for category in ("formatting", "clarity", "relevance", "technical_skills"):
+        st.write(f"{category.replace('_', ' ').capitalize()}: **{scores[category]}/100**")
         # Draws a progress bar
         st.progress(scores[category] / 100)
 
@@ -171,7 +137,7 @@ if uploaded_file:
         return button_html
     
     # Display the download link
-    st.markdown(get_download_link(feedback, "resume_feedback.txt"), unsafe_allow_html = True)
+    st.markdown(get_download_link(feedback, "resume_feedback.txt", "Download Feedback"), unsafe_allow_html = True)
 
     # Save feedback history
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -220,4 +186,4 @@ if uploaded_file:
         common_words = resume_words & job_words
         match_percentage = (len(common_words) / len(job_words)) * 100 if job_words else 0
         st.subheader("Resume and Job Description Match")
-        st.write("Your resume matches approximately **{match_percentage:.2f}** of the job description.")
+        st.write(f"Your resume matches approximately **{match_percentage:.2f}%** of the job description.")
