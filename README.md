@@ -14,7 +14,7 @@ An intelligent resume review app that uses OpenAI's GPT-3.5 to give you actionab
 
 ---
 
-## How Tt Works
+## How It Works
 
 1. Drop a PDF file into the app.
 2. The app will extract the content using 'PyPDF2'.
