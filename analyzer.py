@@ -2,8 +2,12 @@
 import openai
 from dotenv import load_dotenv
 import os
+from openai import OpenAI
 
 load_dotenv()
+
+# Create OpenAI client instance
+client = OpenAI()
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -36,4 +40,4 @@ Resume:
         max_tokens = 500
     )
     # Grabs the actual response which is nested in the choices key
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
