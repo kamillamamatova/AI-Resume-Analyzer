@@ -3,7 +3,7 @@ import streamlit as st
 # Imports the function that extracts text from PDFs
 from extractor import extract_text_from_pdf
 # Imports the function that analyzes resumes using OpenAI
-from analyzer import get_resume_feedback, get_resume_score
+from analyzer import get_resume_feedback, get_resume_scores
 # Imports base64 so I can create downloadable files later
 import base64
 # Imports environment variables
@@ -108,7 +108,7 @@ if uploaded_file:
     with st.spinner("Analyzing your resume..."):
         # Calls the function to analyze the resume and get feedback
         feedback = get_resume_feedback(resume_text)
-        scores = get_resume_score(resume_text)
+        scores = get_resume_scores(resume_text)
 
     # Displays feedback and scores
     st.subheader("AI Feedback")
