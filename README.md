@@ -1,30 +1,84 @@
-# AI-Resume-Analyzer
-Users upload their resume and AI analyzes it and gives feedback on what they can improve.
+# ✮ AI Resume Analyzer ✮
+
+An intelligent resume review app that uses OpenAI's GPT-3.5 to give you actionable feedback on your resume. Upload your PDF resume and get personalized suggestions in seconds.
+
+---
 
 ## Features
-- Upload any PDF resume
-- Gives OpenAI to analyze the content
-- Gives targeted feedback and suggestions
-- Keeps your resume private
+
+- Upload your resume in PDF format
+- AI-powered feedback from OpenAI GPT-3.5
+- Suggestions on formatting, clarity, and technical skills
+- Light and dark mode options
+- Downloadable feedback or send it via email
+
+---
 
 ## How Tt Works
-1. Drop a file into the app.
+
+1. Drop a PDF file into the app.
 2. The app will extract the content using 'PyPDF2'.
 3. The extracted content is sent to OpenAI's API.
-4. You get smart suggestions to enhance your resume.
+4. Feedback is generated — including improvement tips and a numeric score
+5. (Optional) You can download the feedback or email it to yourself
 
-## Steps
+---
 
-  The first step is to set up my project using terminal. I am creating a project folder, a virtual environment, installing the required packages, and then creating a file.
-  The second step is to use PyPDF2 to read resume text from a PDF. I am creating the extractor.py file and testing it out before adding AI to this.
-  The third step is to add OpenAI API integration using the extract_text_from_pdf() function, which will send the resume text to OpenAI GPT 3.5, and then get back AI-powered feedback.
-  The fourth step is to connect extractor.py with analyzer.py. I am going to create a script that combines both. It will use the extract_text_from_pdf() function to get the resume text. Then it will pass that text into the get_resume_feedback().
-  The fifth step is to build an app with Streamlit. This will allow users to upload their resumes via their browsers, get feedback instantly from OpenAI, and make my project more interactive and shareable.
-  The sixth step is to upgrade the app by adding dark mode, colors, and a download link - for a better user experience.
+## Project Setup Steps
+
+### ① Project Initialization
+- Create project folder
+- Set up a virtual environment
+- Install dependencies via `pip install -r requirements.txt`
+
+### ② PDF Extraction
+- Built `extractor.py` using `PyPDF2`
+- Verified accurate text extraction from sample resumes
+
+### ③ AI Integration
+- Added OpenAI integration with GPT-3.5 using the `openai` library
+- Wrote `analyzer.py` to generate smart resume feedback
+
+### ④ Feature Integration
+- Combined `extractor.py` + `analyzer.py`
+- Unified workflow to extract and analyze resume text in a single flow
+
+### ⑤ Frontend with Streamlit
+- Created `app.py` for the user interface
+- Added file upload, real-time feedback, and download options
+
+### ⑥ Final Enhancements
+- Added dark mode + theming
+- Integrated resume scoring and email feedback features
+
+---
 
 ## Instalation Instructions
-  ...
+'''bash
+# Clone the repository
+https://github.com/kamillamamatova/AI-Resume-Analyzer.git
+
+cd AI-Resume-Analyzer
+
+# Create and activate a virtual environment
+python -m venv env
+source env/bin/activate # On Windows: env/Scripts/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the app
+streamlit run app.p
+'''
+
+---
 
 ## (Visual)
 
 ## (Live Demo Link)
+
+## © Author & Credits
+Created and maintained by **Kamilla Mamatova**  
+If you found this helpful, feel free to star the repo and share!
+
+---
