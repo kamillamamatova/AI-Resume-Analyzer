@@ -11,6 +11,9 @@ An intelligent resume review app that uses OpenAI's GPT-3.5 to give you actionab
 - Suggestions on formatting, clarity, and technical skills
 - Light and dark mode options
 - Downloadable feedback or send it via email
+- Auto-reset when uploading a new file
+- Interactive scoring with progress bars and helpful tooltips
+- Reset button to clear session
 
 ---
 
@@ -50,6 +53,8 @@ An intelligent resume review app that uses OpenAI's GPT-3.5 to give you actionab
 ### ⑥ Final Enhancements
 - Added dark mode + theming
 - Integrated resume scoring and email feedback features
+- Responsive layout with tabs and score tooltips
+- Reset and auto-clear feedback
 
 ---
 
