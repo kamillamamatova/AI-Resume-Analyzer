@@ -44,10 +44,7 @@ if theme == "Dark":
         <style>
             body{
                 background-color: #0d0f14;
-                color: #edf0f5
-            }
-            reportview-container .main .block-container{
-                padding-top: 2rem;
+                color: #edf0f5;
             }
             .stButton>button{
                 background-color: #ed61ca;
@@ -60,35 +57,32 @@ if theme == "Dark":
                 padding: 10px 20px;
                 text-align: center;
                 text-decoration: none;
-                display: inline-block;
                 font-size: 16px;
-                border-radius: 5px;   
+                border-radius: 5px;
                 margin-top: 1rem;
-                cursor: pointer; 
+                cursor: pointer;
             }
         </style>
-    """, unsafe_allow_html = True) # unsafe_allow_html is needed to render the CSS
+    """, unsafe_allow_html=True)
 else:
     st.markdown("""
         <style>
             body{
                 background-color: #ffffff;
-                color: #000000
+                color: #000000;
             }
             .download-button{
-                background-color: #ed61ca;
+                background-color: #007bff;
                 color: white;
                 padding: 10px 20px;
                 text-align: center;
-                text-decoration: none;
-                display: inline-block;
                 font-size: 16px;
-                border-radius: 5px;   
+                border-radius: 5px;
                 margin-top: 1rem;
-                cursor: pointer; 
+                cursor: pointer;
             }
         </style>
-    """, unsafe_allow_html = True)
+    """, unsafe_allow_html=True)
 
 # Displays the title of the web app
 st.title("📄 AI Resume Analyzer")
