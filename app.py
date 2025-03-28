@@ -18,6 +18,10 @@ import smtplib
 from email.mime.text import MIMEText
 # Allows attachments
 from email.mime.multipart import MIMEMultipart
+# Allows plots
+import matplotlib.pyplot as plt
+# Spreadsheets
+import pandas as pd
 
 # Load the environment variables
 load_dotenv()
@@ -25,8 +29,14 @@ load_dotenv()
 # Sets the title and layout
 st.set_page_config(page_title = "AI Resume Analyzer", layout = "centered")
 
+# Initialize session state variables
+if "feedback" not in st.session_state:
+    st.session_state.feedback = None
+if "scores" not in st.session_state:
+    st.session_state.scores = None
+
 # Theme toggle
-theme = st.sidebar.radio("Choose Theme", ["Dark", "Light"])
+theme = st.sidebar.radio("Choose Theme", ["Dark", "Light"], index = 1)
 
 # Conditional styling based on user's choice using embedded CSS
 if theme == "Dark":
@@ -66,7 +76,7 @@ else:
                 color: #000000
             }
             .download-button{
-                background-color: #007bff;
+                background-color: #ed61ca;
                 color: white;
                 padding: 10px 20px;
                 text-align: center;
@@ -96,7 +106,7 @@ job_description = st.text_area("Paste Job Description (optional for comparison)"
 email_address = st.text_input("Enter your email address (optional)")
 
 # Only runs if the user has uploaded a file
-if uploaded_file:
+if uploaded_file and (st.session_state.feedback is None or st.session_state.scores is None):
     # Saves the uploaded file to the local machinery as "temp_resume.pdf"
     with open("temp_resume.pdf", "wb") as f:
         f.write(uploaded_file.read())
@@ -106,43 +116,66 @@ if uploaded_file:
 
     # Shows a loading animation of a spinner while the AI is working
     with st.spinner("Analyzing your resume..."):
-        # Calls the function to analyze the resume and get feedback
-        feedback = get_resume_feedback(resume_text)
-        scores = get_resume_scores(resume_text)
+        try:
+            # Calls the function to analyze the resume and get feedback
+            feedback = get_resume_feedback(resume_text)
+            scores = get_resume_scores(resume_text)
+            st.session_state.feedback = feedback
+            st.session_state.scores = scores
+        except:
+            st.error("Failed to analyze the resume. Please check your OpenAI and quota.")
+            st.stop()
+    
+    # Only displays results if the analysis is successful
+    if st.session_state.feedback and st.session_state.scores:
+        feedback = st.session_state.feedback
+        scores = st.session_state.scores
 
-    # Displays feedback and scores
-    st.subheader("AI Feedback")
-    st.write(feedback)
+        # Displays feedback and scores
+        st.subheader("AI Feedback")
+        st.write(st.session_state.feedback)
 
-    st.subheader("Resume Score Breakdown")
-    for category in ("formatting", "clarity", "relevance", "technical_skills"):
-        st.write(f"{category.replace('_', ' ').capitalize()}: **{scores[category]}/100**")
-        # Draws a progress bar
-        st.progress(scores[category] / 100)
+        st.subheader("Resume Score Breakdown")
+        categories = ["formatting", "clarity", "relevance", "technical_skills"]
+        values = [st.session_state.scores.get(c, 70) for c in categories]
 
-    st.subheader("Overall Score")
-    st.write(f"Your resume score: **{scores['overall']}/100**")
-    st.progress(scores['overall'] / 100)
+        for category, val in zip(categories, values):
+            st.write(f"{category.replace('_', ' ').capitalize()}: **{scores[category]}/100**")
+            # Draws a progress bar
+            st.progress(val / 100)
 
-    # A helper function that creates a download link for the feedback
-    def get_download_link(text, filename, label):
-        # Convert text to base64
-        b64 = base64.b64encode(text.encode()).decode()
-        # A donwload link (HTML)
-        button_html = f'''
-            <a href="data:file/txt;base64,{b64}" download="{filename}">
-                <button class="download-button">{label}</button>
-            </a>
-        '''
-        return button_html
+        st.subheader("Overall Score")
+        st.write(f"Your resume score: **{st.session_state.scores.get('overall', 70)}/100**")
+        st.progress(st.session_state.scores.get("overall", 70) / 100)
+
+        # Add bar chart
+        st.subheader("Visual Breakdown (Bar Chart)")
+        chart_data = pd.DataFrame({"Category": categories, "Score": values})
+        st.bar_chart(chart_data.set_index("Category"))
+
+        # Add line chart
+        st.subheader("Visual Breakdown (Line Chart)")
+        st.line_chart(chart_data.set_index("Category"))
+
+        # A helper function that creates a download link for the feedback
+        def get_download_link(text, filename, label):
+            # Convert text to base64
+            b64 = base64.b64encode(text.encode()).decode()
+            # A donwload link (HTML)
+            button_html = f'''
+                <a href="data:file/txt;base64,{b64}" download="{filename}">
+                    <button class="download-button">{label}</button>
+                </a>
+            '''
+            return button_html
     
     # Display the download link
-    st.markdown(get_download_link(feedback, "resume_feedback.txt", "Download Feedback"), unsafe_allow_html = True)
+    st.markdown(get_download_link(st.session_state.feedback, "resume_feedback.txt", "Download Feedback"), unsafe_allow_html = True)
 
     # Save feedback history
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     with open(f"feedback_{timestamp}.txt", "w") as f:
-        f.write(feedback)
+        f.write(st.session_state.feedback)
 
     # Option to email feedback
     if email_address:
@@ -152,7 +185,7 @@ if uploaded_file:
             message["To"] = email_address
             message["Subject"] = "AI Resume Feedback"
 
-            body = MIMEText(feedback, "plain")
+            body = MIMEText(st.session_state.feedback, "plain")
             message.attach(body)
 
             # Simple Mail Transfer Protocol
@@ -173,7 +206,7 @@ if uploaded_file:
             st.error("Failed to send email. Check credentials.")
 
     # Copy to clipboard button
-    st.text_area("Copy feedback", feedback, height=200)
+    st.text_area("Copy feedback", st.session_state.feedback, height=200)
     st.success("You can highlight and copy the feedback above.")
 
     # Toast-style success message
@@ -187,3 +220,10 @@ if uploaded_file:
         match_percentage = (len(common_words) / len(job_words)) * 100 if job_words else 0
         st.subheader("Resume and Job Description Match")
         st.write(f"Your resume matches approximately **{match_percentage:.2f}%** of the job description.")
+
+# Reset button to clear session state
+tooltip = "Click to clear the uploaded resume and feedback"
+if st.button("Reset App", help = tooltip):
+    st.session_state.feedback = ""
+    st.session_state.scores = {}
+    st.experimental_rerun()
